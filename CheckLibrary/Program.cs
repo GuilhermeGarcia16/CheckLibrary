@@ -1,4 +1,10 @@
+using Microsoft.EntityFrameworkCore;
+using CheckLibrary.Data;
+
 var builder = WebApplication.CreateBuilder(args);
+var connection = builder.Configuration.GetConnectionString("CheckLibraryContext");
+builder.Services.AddDbContext<CheckLibraryDbContext>(options => options.UseMySql(connection, ServerVersion.AutoDetect(connection)));
+
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
@@ -13,7 +19,7 @@ if (!app.Environment.IsDevelopment())
     app.UseHsts();
 }
 
-app.UseHttpsRedirection();
+    app.UseHttpsRedirection();
 app.UseStaticFiles();
 
 app.UseRouting();
