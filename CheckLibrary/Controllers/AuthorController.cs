@@ -1,24 +1,34 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using CheckLibrary.Data;
+using CheckLibrary.Models;
+using CheckLibrary.Services;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace CheckLibrary.Controllers
 {
     public class AuthorController : Controller
     {
+        private readonly AuthorService _authorService;
+
+        public AuthorController(AuthorService authorService)
+        {
+            _authorService = authorService;
+        }
+
         // GET: AuthorController
-        public ActionResult Index()
+        public IActionResult Index()
         {
             return View();
         }
 
         // GET: AuthorController/Details/5
-        public ActionResult Details(int id)
+        public IActionResult Details(int id)
         {
             return View();
         }
 
         // GET: AuthorController/Create
-        public ActionResult Create()
+        public IActionResult Create()
         {
             return View();
         }
@@ -26,16 +36,15 @@ namespace CheckLibrary.Controllers
         // POST: AuthorController/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Create(IFormCollection collection)
+        public async Task<IActionResult> Create(Author author)
         {
-            try
-            {
-                return RedirectToAction(nameof(Index));
-            }
-            catch
+            if (!ModelState.IsValid)
             {
                 return View();
             }
+
+            await _authorService.InsertAsync(author);
+            return RedirectToAction(nameof(Index));
         }
 
         // GET: AuthorController/Edit/5

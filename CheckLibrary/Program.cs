@@ -1,10 +1,11 @@
 using Microsoft.EntityFrameworkCore;
 using CheckLibrary.Data;
+using CheckLibrary.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 var connection = builder.Configuration.GetConnectionString("CheckLibraryContext");
 builder.Services.AddDbContext<CheckLibraryDbContext>(options => options.UseMySql(connection, ServerVersion.AutoDetect(connection)));
-
+builder.Services.AddScoped<AuthorService>();
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();

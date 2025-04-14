@@ -12,6 +12,8 @@ namespace CheckLibrary.Models
         public DateOnly BirthDay { get; set; }
         public String Nationality { get; set; } //Buscar de uma api do .gov os países no momento de cadastrar
 
+        public Author()
+        { }
         public Author(int id, string name, DateOnly birthDay, string nationality)
         {
             Id = id;
