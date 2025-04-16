@@ -20,9 +20,7 @@
     </div>
     <div class="mb-3">
         <label asp-for="Nationality" class="form-label">Nationality: </label>
-        <select asp-for="Nationality">
-            <option value="BR">Brasil</option>
-            <option value="EN">Inglaterra</option>
+        <select asp-for="Nationality" id="nationality">
         </select>
     </div>
         <button class="btn btn-dark">Create</button>
@@ -31,6 +29,7 @@
 @section Scripts {
     @{
         await Html.RenderPartialAsync("_ValidationScriptsPartial");
+        <script src="~/js/APIs.js"></script>
     }
 }
 
