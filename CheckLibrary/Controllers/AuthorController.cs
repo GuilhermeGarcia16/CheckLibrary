@@ -3,6 +3,7 @@ using CheckLibrary.Models;
 using CheckLibrary.Services;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using System.Diagnostics;
 
 namespace CheckLibrary.Controllers
 {
@@ -16,9 +17,10 @@ namespace CheckLibrary.Controllers
         }
 
         // GET: AuthorController
-        public IActionResult Index()
+        public async Task<IActionResult> Index()
         {
-            return View();
+            List<Author> authorList = await _authorService.FindAllAsync();
+            return View(authorList);
         }
 
         // GET: AuthorController/Details/5
@@ -48,9 +50,14 @@ namespace CheckLibrary.Controllers
         }
 
         // GET: AuthorController/Edit/5
-        public ActionResult Edit(int id)
+        public async Task<ActionResult> Edit(int? id)
         {
-            return View();
+            if (id == null) { return RedirectToAction(nameof(Error), new { message = "Id Not Provided" }); };
+            Author author = await _authorService.FindByAsync(id.Value);
+
+            if(author == null) { return RedirectToAction(nameof(Error), new { message = "Id Not Found" }); };
+
+            return View(author);
         }
 
         // POST: AuthorController/Edit/5
@@ -87,6 +94,12 @@ namespace CheckLibrary.Controllers
             {
                 return View();
             }
+        }
+
+        public IActionResult Error(string message)
+        {
+            var viewModel = new ErrorViewModel { Message = message, RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier };
+            return View(viewModel);
         }
     }
 }

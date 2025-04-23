@@ -1,0 +1,36 @@
+﻿@model CheckLibrary.Models.Author
+@{
+    ViewBag.Title = "Author";
+}
+<head>
+    <link rel="stylesheet" href="~/css/forms.css" />
+</head>
+<h1>@ViewBag.Title</h1>
+
+<form asp-action="Create" class="form">
+    <div class="mb-3">
+        <label asp-for="Name" class="form-label">Name: </label>
+        <input asp-for="Name" type="text" size="40"/>
+        <span asp-validation-for="Name" class="text-danger"></span>
+    </div>
+    <div class="mb-3">
+        <label asp-for=BirthDay class="form-label">Birthday: </label>
+        <input asp-for="BirthDay" type="date" />
+        <span asp-validation-for="BirthDay" class="text-danger"></span>
+    </div>
+    <div class="mb-3">
+        <label asp-for="Nationality" class="form-label">Nationality: </label>
+        <select asp-for="Nationality" id="nationality">
+        </select>
+    </div>
+        <button class="btn btn-dark">Create</button>
+        <a asp-action="Index" class="btn btn-info">Back to List</a>
+</form>
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+        <script src="~/js/APIs.js"></script>
+    }
+}
+
+
