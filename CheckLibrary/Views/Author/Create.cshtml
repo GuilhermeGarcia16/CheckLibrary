@@ -8,23 +8,32 @@
 <h1>@ViewBag.Title</h1>
 
 <form asp-action="Create" class="form">
-    <div class="mb-3">
-        <label asp-for="Name" class="form-label">Name: </label>
-        <input asp-for="Name" type="text" size="40"/>
-        <span asp-validation-for="Name" class="text-danger"></span>
+    <div class="form-row">
+        <div class="form-group col-md-6">
+            <label asp-for="Name" class="form-label">Name: </label>
+            <input asp-for="Name" type="text" size="40"/>
+            <span asp-validation-for="Name" class="text-danger"></span>
+        </div>
     </div>
-    <div class="mb-3">
-        <label asp-for=BirthDay class="form-label">Birthday: </label>
-        <input asp-for="BirthDay" type="date" />
-        <span asp-validation-for="BirthDay" class="text-danger"></span>
+    <div class="form-row">
+        <div class="form-group col-md-6">
+            <label asp-for=BirthDay class="form-label">Birthday: </label></br>
+            <input asp-for="BirthDay" type="date" />
+            <span asp-validation-for="BirthDay" class="text-danger"></span>
+        </div>
     </div>
-    <div class="mb-3">
-        <label asp-for="Nationality" class="form-label">Nationality: </label>
-        <select asp-for="Nationality" id="nationality">
-        </select>
+    <div class="form-row">
+        <div class="form-group col-md-6">
+            <label asp-for="Nationality" class="form-label">Nationality: </label>
+            <select asp-for="Nationality" id="nationality" >
+                <option value="none" selected></option>
+            </select>
+        </div>
     </div>
+    <div class="col-auto my-1">
         <button class="btn btn-dark">Create</button>
         <a asp-action="Index" class="btn btn-info">Back to List</a>
+    </div>
 </form>
 @section Scripts {
     @{
