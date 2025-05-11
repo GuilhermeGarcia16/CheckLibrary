@@ -1,6 +1,8 @@
 ﻿using CheckLibrary.Data;
 using CheckLibrary.Models;
+using CheckLibrary.Services.Exceptions;
 using Microsoft.EntityFrameworkCore;
+using System.Data;
 
 namespace CheckLibrary.Services
 {
@@ -30,7 +32,17 @@ namespace CheckLibrary.Services
 
         public async Task UpdateAsync(Author author)
         {
+            bool hasAny = _context.Author.Any(x => x.Id == author.Id);
+            if(!hasAny) { throw new NotFoundException("Id Not Found");};
             
+            try
+            {
+                _context.Author.Update(author);
+                await _context.SaveChangesAsync();
+            }catch(DBConcurrencyException ex)
+            {
+                throw new DBConcurrencyException(ex.Message);
+            }
         }
 
         public async Task DeleteAsync(int id)

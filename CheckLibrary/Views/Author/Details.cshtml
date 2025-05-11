@@ -7,29 +7,26 @@
 </head>
 <h1>@ViewBag.Title</h1>
 
-<form asp-action="Edit" class="form">
+<form class="form">
     <div class="form-row">
         <div class="form-group col-md-6">
-            <label asp-for="Name" class="form-label">Name: </label>
-        <input asp-for="Name" type="text" size="40"/>
-        <span asp-validation-for="Name" class="text-danger"></span>
+            <label asp-for="Name" class="form-label">Name</label>
+            <input asp-for="Name" type="text" size="40" disabled/>
         </div>
     </div>
     <div class="form-row">
         <div class="form-group col-md-6">
-            <label asp-for=BirthDay class="form-label">Birthday: </label> </br>
-            <input asp-for="BirthDay" type="date" />
-            <span asp-validation-for="BirthDay" class="text-danger"></span>
+            <label asp-for=BirthDay class="form-label">Birthday</label></br>
+            <input asp-for="BirthDay" type="date" disabled/>
         </div>
     </div>
     <div class="form-row">
         <div class="form-group col-md-6">
-            <label asp-for="Nationality" class="form-label">Nationality: </label>
-            <select asp-for="Nationality" id="nationality"></select>
+            <label asp-for="Nationality" class="form-label">Nationality</label>
+            <select asp-for="Nationality" id="nationality" disabled></select>
         </div>
     </div>
     <div class="col-auto my-1">
-        <button class="btn btn-dark">Save</button>
         <a asp-action="Index" class="btn btn-info">Back to List</a>
     </div>
 </form>
@@ -39,5 +36,3 @@
         <script src="~/js/APIs.js"></script>
     }
 }
-
-

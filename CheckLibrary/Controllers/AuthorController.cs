@@ -1,8 +1,10 @@
 ﻿using CheckLibrary.Data;
 using CheckLibrary.Models;
 using CheckLibrary.Services;
+using CheckLibrary.Services.Exceptions;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using System.Data;
 using System.Diagnostics;
 
 namespace CheckLibrary.Controllers
@@ -24,9 +26,14 @@ namespace CheckLibrary.Controllers
         }
 
         // GET: AuthorController/Details/5
-        public IActionResult Details(int id)
+        public async Task<IActionResult> Details(int id)
         {
-            return View();
+            if (id == null) { return RedirectToAction(nameof(Error), new { message = "Id Not Provided" }); };
+            Author author = await _authorService.FindByAsync(id);
+
+            if (author == null) { return RedirectToAction(nameof(Error), new { message = "Id Not Found" }); };
+
+            return View(author);
         }
 
         // GET: AuthorController/Create
@@ -63,15 +70,27 @@ namespace CheckLibrary.Controllers
         // POST: AuthorController/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Edit(int id, IFormCollection collection)
+        public async Task<ActionResult> Edit(int id, Author author)
         {
-            try
+            if (!ModelState.IsValid)
             {
                 return RedirectToAction(nameof(Index));
             }
-            catch
+
+            if(id != author.Id) { return RedirectToAction(nameof(Index), new { message = "Id mismatch" }); };
+
+            try
             {
-                return View();
+                await _authorService.UpdateAsync(author);
+                return RedirectToAction(nameof(Index));
+            }
+            catch(NotFoundException ex)
+            {
+                return RedirectToAction(nameof(Error), new { message = ex.Message });
+            }
+            catch(DBConcurrencyException exdb)
+            {
+                return RedirectToAction(nameof(Error), new { message = exdb.Message });
             }
         }
 
