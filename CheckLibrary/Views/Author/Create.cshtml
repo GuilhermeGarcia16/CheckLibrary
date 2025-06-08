@@ -25,9 +25,7 @@
     <div class="form-row">
         <div class="form-group col-md-6">
             <label asp-for="Nationality" class="form-label">Nationality: </label>
-            <select asp-for="Nationality" id="nationality" >
-                <option value="none" selected></option>
-            </select>
+            @Html.DropDownList("Nationality", @ViewBag.Options as List<SelectListItem> ,"Selecione o país de origem", "Name")
         </div>
     </div>
     <div class="col-auto my-1">
@@ -38,8 +36,5 @@
 @section Scripts {
     @{
         await Html.RenderPartialAsync("_ValidationScriptsPartial");
-        <script src="~/js/APIs.js"></script>
     }
 }
-
-
