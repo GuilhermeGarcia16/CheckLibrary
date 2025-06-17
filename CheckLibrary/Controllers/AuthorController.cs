@@ -14,10 +14,6 @@ namespace CheckLibrary.Controllers
     {
         private readonly AuthorService _authorService;
 
-        private const String baseUrl = "https://restcountries.com/v3.1/";
-
-        private const String param = "all?fields=name,flag";
-
         public AuthorController(AuthorService authorService)
         {
             _authorService = authorService;
@@ -38,18 +34,16 @@ namespace CheckLibrary.Controllers
 
             if (author == null) { return RedirectToAction(nameof(Error), new { message = "Id Not Found" }); }
 
+            ViewBag.Options = await _authorService.PopulateCountries();
+
             return View(author);
         }
 
         // GET: AuthorController/Create
         public async Task<IActionResult> Create()
         {
-            List<Country> countries = await this.ComunicationAPICountry(baseUrl, param);
+            ViewBag.Options = await _authorService.PopulateCountries();
 
-            if (countries.Count != 0)
-            {
-                ViewBag.Options = this.PopulateNationality(countries);
-            }
             return View();
         }
 
@@ -61,6 +55,7 @@ namespace CheckLibrary.Controllers
             if (!ModelState.IsValid) { return View();}
 
             await _authorService.InsertAsync(author);
+
             return RedirectToAction(nameof(Index));
         }
 
@@ -71,6 +66,8 @@ namespace CheckLibrary.Controllers
 
             Author author = await _authorService.FindByAsync(id.Value);
             if (author == null) { return RedirectToAction(nameof(Error), new { message = "Id Not Found" }); }
+  
+            ViewBag.Options = await _authorService.PopulateCountries();
 
             return View(author);
         }
@@ -126,39 +123,5 @@ namespace CheckLibrary.Controllers
             return View(viewModel);
         }
 
-        protected virtual async Task<List<Country>> ComunicationAPICountry(String baseUrl, String param = "")
-        {
-            List<Country> countries = new List<Country>();
-
-            using (var cliente = new HttpClient())
-            {
-                cliente.BaseAddress = new Uri(baseUrl);
-                cliente.DefaultRequestHeaders.Clear();
-                HttpResponseMessage response = await cliente.GetAsync(param);
-                if (response.IsSuccessStatusCode)
-                {
-                    var Response = response.Content.ReadAsStringAsync().Result;
-                    countries = JsonConvert.DeserializeObject<List<Country>>(Response);
-                }
-            }
-
-            return countries;
-        }
-
-        private List<SelectListItem> PopulateNationality(List<Country> countries)
-        {
-            List<SelectListItem> nationality = new List<SelectListItem>();
-
-            foreach (var country in countries)
-            {
-                nationality.Add(new SelectListItem
-                    {
-                       Value = country.Flag.ToUpper(),
-                       Text = country.Name.Common.ToUpper()
-                    }
-                );
-            }
-            return nationality;
-        }
     }
 }

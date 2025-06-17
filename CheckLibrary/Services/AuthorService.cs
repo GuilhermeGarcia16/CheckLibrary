@@ -1,7 +1,10 @@
 ﻿using CheckLibrary.Data;
+using CheckLibrary.Data.API;
 using CheckLibrary.Models;
 using CheckLibrary.Services.Exceptions;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
+using Newtonsoft.Json;
 using System.Data;
 
 namespace CheckLibrary.Services
@@ -48,6 +51,44 @@ namespace CheckLibrary.Services
         public async Task DeleteAsync(int id)
         {
           
+        }
+
+        public async Task<List<SelectListItem>> PopulateCountries()
+        {
+            List<Country> countries = await this.ComunicationAPICountry();
+
+            List<SelectListItem> nationality = new List<SelectListItem>();
+
+            foreach (var country in countries)
+            {
+                nationality.Add(new SelectListItem
+                {
+                    Value = country.Flag.ToUpper(),
+                    Text = country.Name.Common.ToUpper()
+                }
+                );
+            }
+
+            return nationality;
+        }
+
+        private async Task<List<Country>> ComunicationAPICountry(String baseUrl = "https://restcountries.com/v3.1/", String param = "all?fields=name,flag")
+        {
+            List<Country> countries = new List<Country>();
+
+            using (var cliente = new HttpClient())
+            {
+                cliente.BaseAddress = new Uri(baseUrl);
+                cliente.DefaultRequestHeaders.Clear();
+                HttpResponseMessage response = await cliente.GetAsync(param);
+                if (response.IsSuccessStatusCode)
+                {
+                    var Response = response.Content.ReadAsStringAsync().Result;
+                    countries = JsonConvert.DeserializeObject<List<Country>>(Response);
+                }
+            }
+
+            return countries.Count > 0 ? countries.OrderBy(x => x.Name.ToString()).ToList() : countries;
         }
     }
 }

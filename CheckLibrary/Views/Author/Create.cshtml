@@ -25,7 +25,7 @@
     <div class="form-row">
         <div class="form-group col-md-6">
             <label asp-for="Nationality" class="form-label">Nationality: </label>
-            @Html.DropDownList("Nationality", @ViewBag.Options as List<SelectListItem> ,"Selecione o país de origem", "Name")
+            <select asp-for="Nationality" asp-items="@((List<SelectListItem>)@ViewBag.Options)"></select>
         </div>
     </div>
     <div class="col-auto my-1">

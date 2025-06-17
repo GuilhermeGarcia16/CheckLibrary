@@ -23,7 +23,7 @@
     <div class="form-row">
         <div class="form-group col-md-6">
             <label asp-for="Nationality" class="form-label">Nationality</label>
-            <select asp-for="Nationality" id="nationality" disabled></select>
+            <select asp-for="Nationality" asp-items="@((List<SelectListItem>)@ViewBag.Options)" disabled></select>
         </div>
     </div>
     <div class="col-auto my-1">
