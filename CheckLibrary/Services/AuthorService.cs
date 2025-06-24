@@ -50,7 +50,17 @@ namespace CheckLibrary.Services
 
         public async Task DeleteAsync(int id)
         {
-          
+            try
+            {
+                var authorDelete = await _context.Author.Where(author => author.Id == id).ToListAsync();
+
+                _context.Author.Remove(authorDelete.First());
+
+                await _context.SaveChangesAsync();
+            } catch(DBConcurrencyException ex)
+            {
+                throw new DBConcurrencyException(ex.Message);
+            }
         }
 
         public async Task<List<SelectListItem>> PopulateCountries()

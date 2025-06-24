@@ -1,10 +1,7 @@
-﻿using CheckLibrary.Data.API;
-using CheckLibrary.Models;
+﻿using CheckLibrary.Models;
 using CheckLibrary.Services;
 using CheckLibrary.Services.Exceptions;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Rendering;
-using Newtonsoft.Json;
 using System.Data;
 using System.Diagnostics;
 
@@ -29,7 +26,7 @@ namespace CheckLibrary.Controllers
         // GET: AuthorController/Details/5
         public async Task<IActionResult> Details(int id)
         {
-            if (id == null) { return RedirectToAction(nameof(Error), new { message = "Id Not Provided" }); }
+            if (id <= 0) { return RedirectToAction(nameof(Error), new { message = "Id Not Provided" }); }
             Author author = await _authorService.FindByAsync(id);
 
             if (author == null) { return RedirectToAction(nameof(Error), new { message = "Id Not Found" }); }
@@ -52,9 +49,16 @@ namespace CheckLibrary.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(Author author)
         {
-            if (!ModelState.IsValid) { return View();}
+            try
+            {
+                if (!ModelState.IsValid) { return View(); }
 
-            await _authorService.InsertAsync(author);
+                await _authorService.InsertAsync(author);
+            }
+            catch (Exception ex)
+            {
+                throw new InvalidDataException(ex.Message);
+            }
 
             return RedirectToAction(nameof(Index));
         }
@@ -74,7 +78,6 @@ namespace CheckLibrary.Controllers
 
         // POST: AuthorController/Edit/5
         [HttpPost]
-        [ValidateAntiForgeryToken]
         public async Task<ActionResult> Edit(int id, Author author)
         {
             if (!ModelState.IsValid) { return RedirectToAction(nameof(Index)); }
@@ -97,31 +100,37 @@ namespace CheckLibrary.Controllers
         }
 
         // GET: AuthorController/Delete/5
-        public ActionResult Delete(int id)
-        {
-            return View();
-        }
-
-        // POST: AuthorController/Delete/5
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public ActionResult Delete(int id, IFormCollection collection)
+        public async Task<ActionResult> Delete(int id)
         {
             try
             {
+                if (id <= 0) { return RedirectToAction(nameof(Error), new { message = "Id Not Provided" }); }
+
+                Author author = await _authorService.FindByAsync(id);
+                if (author == null) { return RedirectToAction(nameof(Error), new { message = "Id Not Found" }); }
+
+                await _authorService.DeleteAsync(id);
+
+                TempData["message"] = "Deleted sucessfull";
+
                 return RedirectToAction(nameof(Index));
             }
-            catch
+            catch (NotFoundException ex)
             {
-                return View();
+                return RedirectToAction(nameof(Error), new { message = ex.Message });
             }
+            catch (DBConcurrencyException dbcexp)
+            {
+                return RedirectToAction(nameof(Error), new { message = dbcexp.Message});
+            }
+
+
         }
 
-        public IActionResult Error(string message)
+        private IActionResult Error(string message)
         {
             var viewModel = new ErrorViewModel { Message = message, RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier };
             return View(viewModel);
         }
-
     }
 }
