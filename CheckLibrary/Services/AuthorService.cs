@@ -9,7 +9,7 @@ using System.Data;
 
 namespace CheckLibrary.Services
 {
-    public class AuthorService
+    public class AuthorService : IBaseRegister<Author>
     {
         private readonly CheckLibraryDbContext _context;
 
