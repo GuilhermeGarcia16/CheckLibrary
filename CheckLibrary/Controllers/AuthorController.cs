@@ -51,7 +51,13 @@ namespace CheckLibrary.Controllers
         {
             try
             {
-                if (!ModelState.IsValid) { return View(); }
+                if (!ModelState.IsValid) 
+                {
+                    var errorsModelState = ModelState.First(x => x.Value?.Errors.Count > 0);
+                    TempData["error_message"] = errorsModelState.Value?.Errors.FirstOrDefault(error => error.ErrorMessage != String.Empty).ErrorMessage;
+
+                    return RedirectToAction(nameof(Index));
+                }
 
                 await _authorService.InsertAsync(author);
             }
@@ -80,7 +86,13 @@ namespace CheckLibrary.Controllers
         [HttpPost]
         public async Task<ActionResult> Edit(int id, Author author)
         {
-            if (!ModelState.IsValid) { return RedirectToAction(nameof(Index)); }
+            if (!ModelState.IsValid) 
+            {
+                var errorsModelState = ModelState.First(x => x.Value?.Errors.Count > 0);
+                TempData["error_message"] = errorsModelState.Value?.Errors.FirstOrDefault(error => error.ErrorMessage != String.Empty).ErrorMessage;
+
+                return RedirectToAction(nameof(Index)); 
+            }
 
             if (id != author.Id) { return RedirectToAction(nameof(Index), new { message = "Id mismatch" }); }
 

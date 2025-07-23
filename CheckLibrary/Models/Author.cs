@@ -10,7 +10,8 @@ namespace CheckLibrary.Models
         public string Name { get; set; }
         [Required(ErrorMessage = "{0} required")]
         public DateOnly BirthDay { get; set; }
+        [Required(ErrorMessage = "{0} required")]
         public string Nationality { get; set; } //Buscar de uma api do .gov os países no momento de cadastrar
-        public ICollection<Book> Books { get; set; }
+        public ICollection<Book>? Books { get; set; }
     }
 }
