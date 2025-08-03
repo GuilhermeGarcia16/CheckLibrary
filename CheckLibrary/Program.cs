@@ -7,6 +7,7 @@ var connection = builder.Configuration.GetConnectionString("CheckLibraryContext"
 builder.Services.AddDbContext<CheckLibraryDbContext>(options => options.UseMySql(connection, ServerVersion.AutoDetect(connection)));
 builder.Services.AddScoped<AuthorService>();
 builder.Services.AddScoped<CategoryService>();
+builder.Services.AddScoped<BookService>();
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();

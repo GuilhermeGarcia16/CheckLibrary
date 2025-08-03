@@ -13,7 +13,7 @@ namespace CheckLibrary.Models
         public int CategoryID { get; set; }
         [ForeignKey("Author")]
         public int AuthorID { get; set; }
-        public virtual Category Category { get; set; }
-        public virtual Author Author { get; set; }
+        public virtual Category? Category { get; set; }
+        public virtual Author? Author { get; set; }
     }
 }
