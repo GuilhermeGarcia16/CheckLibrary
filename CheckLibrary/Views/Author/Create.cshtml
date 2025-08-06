@@ -10,21 +10,21 @@
 <form asp-action="Create" class="form">
     <div class="form-row">
         <div class="form-group col-md-6">
-            <label asp-for="Name" class="form-label">Name: </label>
+            <label asp-for="Name" class="form-label">Name </label>
             <input asp-for="Name" type="text" size="40"/>
             <span asp-validation-for="Name" class="text-danger"></span>
         </div>
     </div>
     <div class="form-row">
         <div class="form-group col-md-6">
-            <label asp-for=BirthDay class="form-label">Birthday: </label></br>
+            <label asp-for=BirthDay class="form-label">Birthday </label></br>
             <input asp-for="BirthDay" type="date" />
             <span asp-validation-for="BirthDay" class="text-danger"></span>
         </div>
     </div>
     <div class="form-row">
         <div class="form-group col-md-6">
-            <label asp-for="Nationality" class="form-label">Nationality: </label>
+            <label asp-for="Nationality" class="form-label">Nationality </label>
             <select asp-for="Nationality" asp-items="@((List<SelectListItem>)@ViewBag.Options)"></select>
         </div>
     </div>
