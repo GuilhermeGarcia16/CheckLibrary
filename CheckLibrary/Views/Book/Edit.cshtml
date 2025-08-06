@@ -1,6 +1,6 @@
-﻿@model CheckLibrary.Models.Category
+﻿@model CheckLibrary.Models.Book
 @{
-    ViewBag.Title = "Category";
+    ViewBag.Title = "Book";
 }
 <head>
     <link rel="stylesheet" href="~/css/forms.css" />
@@ -10,9 +10,21 @@
 <form asp-action="Edit" class="form">
     <div class="form-row">
         <div class="form-group col-md-6">
-            <label asp-for="Description" class="form-label">Description: </label>
-            <input asp-for="Description" type="text" size="40"/>
-            <span asp-validation-for="Description" class="text-danger"></span>
+            <label asp-for="Title" class="form-label">Title: </label>
+            <input asp-for="Title" type="text" size="40"/>
+            <span asp-validation-for="Title" class="text-danger"></span>
+        </div>
+    </div>
+    <div class="form-row">
+        <div class="form-group col-md-6">
+            <label asp-for="CategoryID" class="form-label">Category</label></br>
+            <select asp-for="CategoryID" asp-items="@((List<SelectListItem>)@ViewBag.OptCategories)"></select>
+        </div>
+    </div>
+    <div class="form-row">
+        <div class="form-group col-md-6">
+            <label asp-for="AuthorID" class="form-label">Author</label></br>
+            <select asp-for="AuthorID" asp-items="@((List<SelectListItem>)@ViewBag.OptAuthors)"></select>
         </div>
     </div>
     <div class="col-auto my-1">

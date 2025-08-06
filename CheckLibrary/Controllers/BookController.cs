@@ -35,6 +35,9 @@ namespace CheckLibrary.Controllers
 
             if (book == null) { return RedirectToAction(nameof(Error), new { message = "Id Not Found" }); }
 
+            ViewBag.OptCategories = await PopulateCategory();
+            ViewBag.OptAuthors = await PopulateAuthor();
+
             return View(book);
         }
 
@@ -80,6 +83,9 @@ namespace CheckLibrary.Controllers
             Book book = await _bookService.FindByAsync(id.Value);
             if (book == null) { return RedirectToAction(nameof(Error), new { message = "Id Not Found" }); }
 
+            ViewBag.OptCategories = await PopulateCategory();
+            ViewBag.OptAuthors = await PopulateAuthor();
+
             return View(book);
         }
 
@@ -87,19 +93,20 @@ namespace CheckLibrary.Controllers
         [HttpPost]
         public async Task<ActionResult> Edit(int id, Book book)
         {
-            if (!ModelState.IsValid)
-            {
-                var errorsModelState = ModelState.First(x => x.Value?.Errors.Count > 0);
-                TempData["error_message"] = errorsModelState.Value?.Errors.FirstOrDefault(error => error.ErrorMessage != String.Empty).ErrorMessage;
-
-                return RedirectToAction(nameof(Index));
-            }
-
-            if (id != book.Id) { return RedirectToAction(nameof(Index), new { message = "Id mismatch" }); }
-
             try
             {
+                if (!ModelState.IsValid)
+                {
+                    var errorsModelState = ModelState.First(x => x.Value?.Errors.Count > 0);
+                    TempData["error_message"] = errorsModelState.Value?.Errors.FirstOrDefault(error => error.ErrorMessage != String.Empty).ErrorMessage;
+
+                    return RedirectToAction(nameof(Index));
+                }
+
+                if (id != book.Id) { return RedirectToAction(nameof(Index), new { message = "Id mismatch" }); }
+                
                 await _bookService.UpdateAsync(book);
+                
                 return RedirectToAction(nameof(Index));
             }
             catch (NotFoundException ex)
@@ -139,7 +146,7 @@ namespace CheckLibrary.Controllers
 
 
         }
-        public async Task<List<SelectListItem>> PopulateCategory()
+        private async Task<List<SelectListItem>> PopulateCategory()
         {
             List<Category> categories = await _categoryService.FindAllAsync();
 
@@ -157,7 +164,7 @@ namespace CheckLibrary.Controllers
             return category;
         }
 
-        public async Task<List<SelectListItem>> PopulateAuthor()
+        private async Task<List<SelectListItem>> PopulateAuthor()
         {
             List<Author> authors = await _authorService.FindAllAsync();
 

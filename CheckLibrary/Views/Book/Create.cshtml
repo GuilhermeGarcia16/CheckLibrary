@@ -17,13 +17,13 @@
     </div>
     <div class="form-row">
         <div class="form-group col-md-6">
-            <label asp-for="CategoryID" class="form-label">Category: </label>
+            <label asp-for="CategoryID" class="form-label">Category</label> </br>
             <select asp-for="CategoryID" asp-items="@((List<SelectListItem>)@ViewBag.OptCategories)"></select>
         </div>
     </div>
     <div class="form-row">
         <div class="form-group col-md-6">
-            <label asp-for="AuthorID" class="form-label">Author: </label>
+            <label asp-for="AuthorID" class="form-label">Author</label> </br>
             <select asp-for="AuthorID" asp-items="@((List<SelectListItem>)@ViewBag.OptAuthors)"></select>
         </div>
     </div>
