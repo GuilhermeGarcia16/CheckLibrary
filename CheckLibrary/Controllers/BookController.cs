@@ -31,7 +31,7 @@ namespace CheckLibrary.Controllers
         public async Task<IActionResult> Details(int id)
         {
             if (id <= 0) { return RedirectToAction(nameof(Error), new { message = "Id Not Provided" }); }
-            Book book = await _bookService.FindByAsync(id);
+            Book book = await _bookService.FindByIdAsync(id);
 
             if (book == null) { return RedirectToAction(nameof(Error), new { message = "Id Not Found" }); }
 
@@ -80,7 +80,7 @@ namespace CheckLibrary.Controllers
         {
             if (id == null) { return RedirectToAction(nameof(Error), new { message = "Id Not Provided" }); }
 
-            Book book = await _bookService.FindByAsync(id.Value);
+            Book book = await _bookService.FindByIdAsync(id.Value);
             if (book == null) { return RedirectToAction(nameof(Error), new { message = "Id Not Found" }); }
 
             ViewBag.OptCategories = await PopulateCategory();
@@ -126,7 +126,7 @@ namespace CheckLibrary.Controllers
             {
                 if (id <= 0) { return RedirectToAction(nameof(Error), new { message = "Id Not Provided" }); }
 
-                Book book = await _bookService.FindByAsync(id);
+                Book book = await _bookService.FindByIdAsync(id);
                 if (book == null) { return RedirectToAction(nameof(Error), new { message = "Id Not Found" }); }
 
                 await _bookService.DeleteAsync(id);

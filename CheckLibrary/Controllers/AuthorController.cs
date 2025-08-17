@@ -27,7 +27,7 @@ namespace CheckLibrary.Controllers
         public async Task<IActionResult> Details(int id)
         {
             if (id <= 0) { return RedirectToAction(nameof(Error), new { message = "Id Not Provided" }); }
-            Author author = await _authorService.FindByAsync(id);
+            Author author = await _authorService.FindByIdAsync(id);
 
             if (author == null) { return RedirectToAction(nameof(Error), new { message = "Id Not Found" }); }
 
@@ -74,7 +74,7 @@ namespace CheckLibrary.Controllers
         {
             if (id == null) { return RedirectToAction(nameof(Error), new { message = "Id Not Provided" }); }
 
-            Author author = await _authorService.FindByAsync(id.Value);
+            Author author = await _authorService.FindByIdAsync(id.Value);
             if (author == null) { return RedirectToAction(nameof(Error), new { message = "Id Not Found" }); }
   
             ViewBag.Options = await _authorService.PopulateCountries();
@@ -118,7 +118,7 @@ namespace CheckLibrary.Controllers
             {
                 if (id <= 0) { return RedirectToAction(nameof(Error), new { message = "Id Not Provided" }); }
 
-                Author author = await _authorService.FindByAsync(id);
+                Author author = await _authorService.FindByIdAsync(id);
                 if (author == null) { return RedirectToAction(nameof(Error), new { message = "Id Not Found" }); }
 
                 await _authorService.DeleteAsync(id);

@@ -24,7 +24,7 @@ namespace CheckLibrary.Controllers
         public async Task<IActionResult> Details(int id)
         {
             if (id <= 0) { return RedirectToAction(nameof(Error), new { message = "Id Not Provided" }); }
-            Category category = await _categoryService.FindByAsync(id);
+            Category category = await _categoryService.FindByIdAsync(id);
 
             if (category == null) { return RedirectToAction(nameof(Error), new { message = "Id Not Found" }); }
 
@@ -67,7 +67,7 @@ namespace CheckLibrary.Controllers
         {
             if (id == null) { return RedirectToAction(nameof(Error), new { message = "Id Not Provided" }); }
 
-            Category category = await _categoryService.FindByAsync(id.Value);
+            Category category = await _categoryService.FindByIdAsync(id.Value);
             if (category == null) { return RedirectToAction(nameof(Error), new { message = "Id Not Found" }); }
 
             return View(category);
@@ -109,7 +109,7 @@ namespace CheckLibrary.Controllers
             {
                 if (id <= 0) { return RedirectToAction(nameof(Error), new { message = "Id Not Provided" }); }
 
-                Category category = await _categoryService.FindByAsync(id);
+                Category category = await _categoryService.FindByIdAsync(id);
                 if (category == null) { return RedirectToAction(nameof(Error), new { message = "Id Not Found" }); }
 
                 await _categoryService.DeleteAsync(id);
