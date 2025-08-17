@@ -15,6 +15,8 @@ namespace CheckLibrary.Services
             _context = context;
         }
 
+        public BookService() { }
+
         public async Task<List<Book>> FindAllAsync()
         {
             return await _context.Book.OrderBy(item => item.Title)
@@ -23,7 +25,7 @@ namespace CheckLibrary.Services
                                       .ToListAsync();
         }
 
-        public async Task<Book> FindByAsync(int id)
+        public async Task<Book> FindByIdAsync(int id)
         {
             return await _context.Book.FirstOrDefaultAsync(x => x.Id == id);
         }
@@ -59,6 +61,19 @@ namespace CheckLibrary.Services
                 _context.Book.Remove(authorDelete.First());
 
                 await _context.SaveChangesAsync();
+            }
+            catch (DBConcurrencyException ex)
+            {
+                throw new DBConcurrencyException(ex.Message);
+            }
+        }
+
+        public List<Book> FindByWord(String word)
+        {
+            try
+            {
+                List<Book> wordFind = _context.Book.Where(Book =>EF.Functions.Like(Book.Title, String.Format("%{0}%",word))).ToList();
+                return wordFind;
             }
             catch (DBConcurrencyException ex)
             {

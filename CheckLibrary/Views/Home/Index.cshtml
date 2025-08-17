@@ -5,12 +5,12 @@
 <div class="text-center">
     <h1 class="display-4">Bem-vindo, {nome do usuário}</h1>
     <div class="container-fluid">
-        <form action="/" method="post">
-            <div class="form-group ">
+        <form asp-action="Search">
+            <div class="form-group">
                 <label for="book">Buscar livro</label>
-                <input type="text" class="form-control" name="book"/>
+                <input type="text" class="form-control" name="wordSearch" />
                 <div class="row-cols-6">
-                    <button type="submit" class="btn btn-primary">Buscar</button>
+                    <button class="btn btn-primary">Buscar</button>
                     <button type="reset" class="btn btn-dark">Limpar</button>
                 </div>
             </div>

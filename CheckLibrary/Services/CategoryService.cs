@@ -14,13 +14,11 @@ namespace CheckLibrary.Services
         {
             _context = context;
         }
-
         public async Task<List<Category>> FindAllAsync()
         {
             return await _context.Category.OrderBy(item => item.Description).ToListAsync();
         }
-
-        public async Task<Category> FindByAsync(int id)
+        public async Task<Category> FindByIdAsync(int id)
         {
             return await _context.Category.FirstOrDefaultAsync(x => x.Id == id);
         }
@@ -30,7 +28,6 @@ namespace CheckLibrary.Services
             _context.Add(category);
             await _context.SaveChangesAsync();
         }
-
         public async Task UpdateAsync(Category category)
         {
             bool hasAny = _context.Category.Any(x => x.Id == category.Id);
@@ -46,7 +43,6 @@ namespace CheckLibrary.Services
                 throw new DBConcurrencyException(ex.Message);
             }
         }
-
         public async Task DeleteAsync(int id)
         {
             try
@@ -56,6 +52,18 @@ namespace CheckLibrary.Services
                 _context.Category.Remove(authorDelete.First());
 
                 await _context.SaveChangesAsync();
+            }
+            catch (DBConcurrencyException ex)
+            {
+                throw new DBConcurrencyException(ex.Message);
+            }
+        }
+        public List<Category> FindByWord(string word)
+        {
+            try
+            {
+                List<Category> wordFind = _context.Category.Where(Category => EF.Functions.Like(Category.Description, String.Format("%{0}%", word))).ToList();
+                return wordFind;
             }
             catch (DBConcurrencyException ex)
             {

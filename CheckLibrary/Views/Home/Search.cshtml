@@ -1,0 +1,52 @@
+﻿@model CheckLibrary.Models.SearchFullViewModel
+@{
+    ViewBag.Title = String.Format("Resultado de busca:{0}", ViewBag.Busca);
+}
+
+<h1>@ViewBag.Title</h1>
+
+@if(@TempData.ContainsKey("message"))
+{
+ <div class="alert alert-danger alert-dismissible" role="alert">
+    <div>@TempData["message"]</div>
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+</div>
+}
+@if (Model.Book.Count > 0 || Model.Author.Count > 0 || Model.Category.Count > 0)
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th scope="col">Resultado</th>
+                <th scope="col">Tipo</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach(var item in Model.Book)
+            {
+                <tr>
+                    <td>@Html.DisplayFor(modelItem => item.Title)</td>
+                    <td>Book</td>
+                </tr>
+            }
+            @foreach (var item in Model.Author)
+            {
+                <tr>
+                    <td>@Html.DisplayFor(modelItem => item.Name)</td>
+                    <td>Author</td>
+                </tr>
+            }
+            @foreach (var item in Model.Category)
+            {
+                <tr>
+                    <td>@Html.DisplayFor(modelItem => item.Description)</td>
+                    <td>Category</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+else
+{
+    <div> Não há dados para mostrar</div>
+}

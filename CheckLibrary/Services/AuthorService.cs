@@ -23,7 +23,7 @@ namespace CheckLibrary.Services
            return await _context.Author.OrderBy(item => item.Name).ToListAsync();
         }
 
-        public async Task<Author> FindByAsync(int id)
+        public async Task<Author> FindByIdAsync(int id)
         {
             return await _context.Author.FirstOrDefaultAsync(x => x.Id == id);
         }
@@ -58,6 +58,18 @@ namespace CheckLibrary.Services
 
                 await _context.SaveChangesAsync();
             } catch(DBConcurrencyException ex)
+            {
+                throw new DBConcurrencyException(ex.Message);
+            }
+        }
+        public List<Author> FindByWord(string word)
+        {
+            try
+            {
+                List<Author> wordFind = _context.Author.Where(Author => EF.Functions.Like(Author.Name, String.Format("%{0}%", word))).ToList();
+                return wordFind;
+            }
+            catch (DBConcurrencyException ex)
             {
                 throw new DBConcurrencyException(ex.Message);
             }
