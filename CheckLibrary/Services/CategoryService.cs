@@ -14,6 +14,7 @@ namespace CheckLibrary.Services
         {
             _context = context;
         }
+        public CategoryService() { }
         public async Task<List<Category>> FindAllAsync()
         {
             return await _context.Category.OrderBy(item => item.Description).ToListAsync();
