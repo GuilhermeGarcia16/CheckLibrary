@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
 using System.Data;
+using System.Globalization;
 
 namespace CheckLibrary.Services
 {
@@ -17,10 +18,18 @@ namespace CheckLibrary.Services
         {
             _context = context;
         }
-
+        public AuthorService() { }
         public async Task<List<Author>> FindAllAsync()
         {
-           return await _context.Author.OrderBy(item => item.Name).ToListAsync();
+           List<Author> authors = await _context.Author.OrderBy(item => item.Name).ToListAsync();
+           List<SelectListItem> populateCountries = await this.PopulateCountries();
+           TextInfo text = new CultureInfo("en-US",false).TextInfo;
+
+           authors.ForEach(delegate (Author aut)
+            {
+                aut.Nationality = populateCountries.Find(country => String.Equals(country.Value, aut.Nationality)).Text;
+            });
+            return authors;
         }
 
         public async Task<Author> FindByIdAsync(int id)
