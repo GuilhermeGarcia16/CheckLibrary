@@ -31,7 +31,7 @@ public class HomeController : Controller
             List<Author> authorList = _authorService.FindByWord(wordSearch);
             List<Category> categoryList = _categoryService.FindByWord(wordSearch);
 
-            var search = new SearchFullViewModel()
+            SearchFullViewModel search = new SearchFullViewModel()
             {
                 Book = bookList,
                 Author = authorList,
@@ -41,7 +41,8 @@ public class HomeController : Controller
             ViewBag.Busca = wordSearch;
             return View(search);
         }
-        //TO-DO Criar uma mensagem de alerta para que preencha algo no campo
+
+        TempData["message"] = "Preencha o campo de pesquisa.";
         return RedirectToAction(nameof(Index));
     }
 
