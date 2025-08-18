@@ -5,13 +5,6 @@
 
 <h1>@ViewBag.Title</h1>
 
-@if(@TempData.ContainsKey("message"))
-{
- <div class="alert alert-danger alert-dismissible" role="alert">
-    <div>@TempData["message"]</div>
-    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-</div>
-}
 @if (Model.Book.Count > 0 || Model.Author.Count > 0 || Model.Category.Count > 0)
 {
     <table class="table">

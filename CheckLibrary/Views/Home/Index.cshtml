@@ -5,6 +5,13 @@
 <div class="text-center">
     <h1 class="display-4">Bem-vindo, {nome do usuário}</h1>
     <div class="container-fluid">
+        @if (@TempData.ContainsKey("message"))
+        {
+            <div class="alert alert-danger alert-dismissible" role="alert">
+                <div>@TempData["message"]</div>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        }
         <form asp-action="Search">
             <div class="form-group">
                 <label for="book">Buscar livro</label>
