@@ -5,9 +5,19 @@ using CheckLibrary.Services;
 var builder = WebApplication.CreateBuilder(args);
 var connection = builder.Configuration.GetConnectionString("CheckLibraryContext");
 builder.Services.AddDbContext<CheckLibraryDbContext>(options => options.UseMySql(connection, ServerVersion.AutoDetect(connection)));
+//Service Scoped
 builder.Services.AddScoped<AuthorService>();
 builder.Services.AddScoped<CategoryService>();
 builder.Services.AddScoped<BookService>();
+builder.Services.AddScoped<AccountService>();
+//Service Cache
+builder.Services.AddDistributedMemoryCache();
+//Service Session
+builder.Services.AddSession(options =>
+{
+    options.IdleTimeout = TimeSpan.FromMinutes(5);  // Set session timeout
+    options.Cookie.HttpOnly = true; // Ensures the session cookie is accessible only by the server
+});
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
@@ -22,7 +32,10 @@ if (!app.Environment.IsDevelopment())
     app.UseHsts();
 }
 
-    app.UseHttpsRedirection();
+app.UseHttpsRedirection();
+
+app.UseSession();
+
 app.UseStaticFiles();
 
 app.UseRouting();

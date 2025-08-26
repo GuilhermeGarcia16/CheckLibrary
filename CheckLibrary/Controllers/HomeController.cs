@@ -17,9 +17,13 @@ public class HomeController : Controller
         _categoryService = categoryService;
         _authorService = authorService;
     }
-
     public IActionResult Index()
     {
+        var user = HttpContext.Session.GetString("UserName");
+        if (user is not null)
+        {
+            ViewBag.UserName = user;
+        }
         return View();
     }
 

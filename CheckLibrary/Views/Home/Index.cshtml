@@ -3,7 +3,10 @@
 }
 
 <div class="text-center">
-    <h1 class="display-4">Bem-vindo, {nome do usuário}</h1>
+    @if(ViewBag.UserName != null)
+    {
+        <h1 class="display-4">Bem-vindo, @ViewBag.UserName</h1>        
+    }
     <div class="container-fluid">
         @if (@TempData.ContainsKey("message"))
         {
