@@ -4,6 +4,7 @@ using CheckLibrary.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace CheckLibrary.Migrations
 {
     [DbContext(typeof(CheckLibraryDbContext))]
-    partial class CheckLibraryDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250824233704_AccountCreate")]
+    partial class AccountCreate
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -30,7 +33,7 @@ namespace CheckLibrary.Migrations
 
                     b.Property<string>("ConfirmPassword")
                         .IsRequired()
-                        .HasMaxLength(128)
+                        .HasMaxLength(10)
                         .HasColumnType("varchar(10)");
 
                     b.Property<string>("FullName")
@@ -40,7 +43,7 @@ namespace CheckLibrary.Migrations
 
                     b.Property<string>("Password")
                         .IsRequired()
-                        .HasMaxLength(128)
+                        .HasMaxLength(10)
                         .HasColumnType("varchar(10)");
 
                     b.HasKey("Email");

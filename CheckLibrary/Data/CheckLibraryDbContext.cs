@@ -11,5 +11,6 @@ namespace CheckLibrary.Data
         public DbSet<Author> Author { get; set; } = default!;
         public DbSet<Category> Category { get; set; } = default!;
         public DbSet<Book> Book { get; set; } = default!;
+        public DbSet<Account> Account { get; set; } = default!;
     }
 }

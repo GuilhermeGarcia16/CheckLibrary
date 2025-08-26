@@ -1,0 +1,37 @@
+﻿@model CheckLibrary.Models.Account
+@{
+    ViewData["Title"] = "Account";
+}
+<head>
+    <link rel="stylesheet" href="~/css/forms.css" />
+</head>
+@if (@TempData.ContainsKey("error_message"))
+{
+    <div class="alert alert-warning alert-dismissible" role="alert">
+        <div>@TempData["error_message"]</div>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
+<div class="position-absolute top-50 start-50 translate-middle">
+    <span> Don't have an account?? Click @Html.ActionLink("here", "Create") and to create.</span><br><br>
+    <form asp-action="Login">
+        <div class="form-row">
+            <div class="form-group col-md-6">
+                <label asp-for="Email" class="form-label">Email</label>
+                <input asp-for="Email" type="text" size="40" />
+                <span asp-validation-for="Email" class="text-danger"></span>
+            </div>
+        </div>
+        <div class="form-row">
+            <div class="form-group col-md-6">
+                <label asp-for="Password" class="form-label">Password</label>
+                <input asp-for="Password" type="password" size="40" />
+                <span asp-validation-for="Password" class="text-danger"></span>
+            </div>
+        </div>
+        <div class="col-auto my-1">
+            <button class="btn btn-dark">Login</button>
+            <a asp-action="Index" class="btn btn-info">Back to List</a>
+        </div>
+    </form> 
+</div>

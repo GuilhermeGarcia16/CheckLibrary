@@ -1,0 +1,43 @@
+﻿@model CheckLibrary.Models.Account
+@{
+    ViewData["Title"] = "Account";
+}
+<head>
+    <link rel="stylesheet" href="~/css/forms.css" />
+</head>
+<div class="position-absolute top-50 start-50 translate-middle">
+    <form asp-action="Create">
+        <div class="form-row">
+            <div class="form-group col-md-6">
+                <label asp-for="FullName" class="form-label">FullName</label>
+                <input asp-for="FullName" type="text" size="60" />
+                <span asp-validation-for="FullName" class="text-danger"></span>
+            </div>
+        </div>
+        <div class="form-row">
+            <div class="form-group col-md-6">
+                <label asp-for="Email" class="form-label">Email</label>
+                <input asp-for="Email" type="text" size="40" />
+                <span asp-validation-for="Email" class="text-danger"></span>
+            </div>
+        </div>
+        <div class="form-row">
+            <div class="form-group col-md-6">
+                <label asp-for="Password" class="form-label">Password</label><br />
+                <input asp-for="Password" type="password" size="40" />
+                <span asp-validation-for="Password" class="text-danger"></span>
+            </div>
+        </div>
+        <div class="form-row">
+            <div class="form-group col-md-6">
+                <label asp-for="ConfirmPassword" class="form-label">Confirm Password</label><br />
+                <input asp-for="ConfirmPassword" type="password" size="40" />
+                <span asp-validation-for="ConfirmPassword" class="text-danger"></span>
+            </div>
+        </div>
+        <div class="col-auto my-1">
+            <button class="btn btn-dark">Create</button>
+            <a asp-action="Index" class="btn btn-info">Cancel</a>
+        </div>
+    </form>
+</div>
