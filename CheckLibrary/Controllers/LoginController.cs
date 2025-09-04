@@ -1,17 +1,19 @@
-﻿using CheckLibrary.Models;
+﻿using CheckLibrary.Data;
+using CheckLibrary.Models;
 using CheckLibrary.Services;
+using CheckLibrary.Teste;
 using Microsoft.AspNetCore.Mvc;
 
 namespace CheckLibrary.Controllers
 {
     public class LoginController : Controller
     {
-        private readonly AccountService _accountService;
-        public LoginController(AccountService accountService)
+        private static LoginManagement _loginManagementInstance;
+        public static LoginManagement LoginManagementInstance { get { return _loginManagementInstance; } }
+        public LoginController(AccountService accountService) 
         {
-            _accountService = accountService;
+            _loginManagementInstance = new(accountService);
         }
-
         public IActionResult Index()
         {
             return View();
@@ -21,17 +23,15 @@ namespace CheckLibrary.Controllers
         [ValidateAntiForgeryToken]
         public IActionResult Login(Account account)
         {
-            Account account_login = _accountService.FindAccount(account.Email);
-            if (account_login is not null)
+            Task<StatusMessage<Account>> retLogin = _loginManagementInstance.Login(account);
+            //account exists?
+            if(retLogin.Result.Ok)
             {
-                Boolean account_logon = PasswordService.VerifyPassword(account.Password, account_login.Password);
-                if (account_logon)
-                {
-                    HttpContext.Session.SetString("UserName", account_login.FullName);
-                    return RedirectToAction(nameof(Index), "Home");
-                }
+                //Session created
+                HttpContext.Session.SetString("UserName", retLogin.Result.Data.FullName);
+                return RedirectToAction(nameof(Index), "Home");
             }
-            TempData["error_message"] = "Account NOT exists.";
+            TempData["error_message"] = retLogin.Result.Message;
             return RedirectToAction(nameof(Index));
         }
 
@@ -42,30 +42,21 @@ namespace CheckLibrary.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create(Account account)
+        public IActionResult Create(Account account)
         {
             try
             {
                 if (!ModelState.IsValid) { return View(); }
 
-                Account account_email = _accountService.FindAccount(account.Email.ToString());
-                if(account_email is not null)
-                {
-                    TempData["error_message"] = "Account exists.";
-                    return RedirectToAction(nameof(Index));
-                }
-                string passwordEncrypted = PasswordService.CriptographyPassword(account.Password);
-                account.Password = passwordEncrypted;
-                account.ConfirmPassword = passwordEncrypted;
+                Task<StatusMessage<Account>> retCreate = _loginManagementInstance.Create(account);
+                if(!retCreate.Result.Ok) { TempData["error_message"] = retCreate.Result.Message; }
 
-                await _accountService.InsertAsync(account);
+                return RedirectToAction(nameof(Index));
             }
             catch (Exception ex)
             {
                 throw new InvalidDataException(ex.Message);
             }
-
-            return RedirectToAction(nameof(Index));
         }
     }
 }

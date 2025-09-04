@@ -14,7 +14,7 @@ namespace CheckLibrary.Services
             _context = context;
         }
         public AccountService() { }
-        public  async Task<List<Account>> FindAllAsync()
+        public async Task<List<Account>> FindAllAsync()
         {
             return await _context.Account.OrderBy(item => item.Email).ToListAsync();
         }
@@ -70,11 +70,11 @@ namespace CheckLibrary.Services
             throw new NotImplementedException();
         }
 
-        public Account FindAccount(string email, string password = "")
+        public async Task<Account> FindAccountByEmailAsync(string email, string password = "")
         {
             try
             {
-               return _context.Account.FirstOrDefault(item=> item.Email.Equals(email));
+                return await _context.Account.FirstOrDefaultAsync(item=> item.Email.Equals(email));
             }
             catch (DBConcurrencyException ex)
             {

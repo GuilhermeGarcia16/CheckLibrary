@@ -24,8 +24,8 @@ namespace CheckLibrary.Services
 
         public static Boolean VerifyPassword(string enterPassword, string userPassword)
         {
-            string _enterPaswword = CriptographyPassword(enterPassword);
-            return _enterPaswword.Equals(userPassword);
+            string _enterPassword = CriptographyPassword(enterPassword);
+            return _enterPassword.Equals(userPassword);
         }
     }
 }
