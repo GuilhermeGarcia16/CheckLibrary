@@ -1,45 +1,47 @@
-﻿using CheckLibrary.Models;
+﻿using CheckLibrary.Application;
+using CheckLibrary.Data;
+using CheckLibrary.Models;
 using CheckLibrary.Services;
-using CheckLibrary.Services.Exceptions;
 using Microsoft.AspNetCore.Mvc;
-using System.Data;
 using System.Diagnostics;
 
 namespace CheckLibrary.Controllers
 {
     public class AuthorController : Controller
     {
-        private readonly AuthorService _authorService;
-
+        #region Properties
+        private static AuthorManagement _authorManagementInstance;
+        public static AuthorManagement AuthorManagementInstance { get { return _authorManagementInstance; } }
         public AuthorController(AuthorService authorService)
         {
-            _authorService = authorService;
+            _authorManagementInstance = new(authorService);
         }
+        #endregion Properties
 
         // GET: AuthorController
         public async Task<IActionResult> Index()
         {
-            List<Author> authorList = await _authorService.FindAllAsync();
-            return View(authorList);
+            Task<StatusMessage<List<Author>>> authorList = _authorManagementInstance.ListAllAuthor();
+
+            return View(authorList.Result.Data);
         }
 
         // GET: AuthorController/Details/5
         public async Task<IActionResult> Details(int id)
         {
-            if (id <= 0) { return RedirectToAction(nameof(Error), new { message = "Id Not Provided" }); }
-            Author author = await _authorService.FindByIdAsync(id);
+            Task<StatusMessage<Author>> retAuthor = _authorManagementInstance.FindAuthor(id);
 
-            if (author == null) { return RedirectToAction(nameof(Error), new { message = "Id Not Found" }); }
+            if (!retAuthor.Result.Ok) { return RedirectToAction(nameof(Error), new { message = retAuthor.Result.Message }); }
 
-            ViewBag.Options = await _authorService.PopulateCountries();
+            ViewBag.Options = await _authorManagementInstance.PopulateCountries();
 
-            return View(author);
+            return View(retAuthor.Result.Data);
         }
 
         // GET: AuthorController/Create
         public async Task<IActionResult> Create()
         {
-            ViewBag.Options = await _authorService.PopulateCountries();
+            ViewBag.Options = await _authorManagementInstance.PopulateCountries();
 
             return View();
         }
@@ -49,22 +51,17 @@ namespace CheckLibrary.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(Author author)
         {
-            try
+            if (!ModelState.IsValid) 
             {
-                if (!ModelState.IsValid) 
-                {
-                    var errorsModelState = ModelState.First(x => x.Value?.Errors.Count > 0);
-                    TempData["error_message"] = errorsModelState.Value?.Errors.FirstOrDefault(error => error.ErrorMessage != String.Empty).ErrorMessage;
+                var errorsModelState = ModelState.First(x => x.Value?.Errors.Count > 0);
+                TempData["error_message"] = errorsModelState.Value?.Errors.FirstOrDefault(error => error.ErrorMessage != String.Empty).ErrorMessage;
 
-                    return RedirectToAction(nameof(Index));
-                }
+                return RedirectToAction(nameof(Index));
+            }
 
-                await _authorService.InsertAsync(author);
-            }
-            catch (Exception ex)
-            {
-                throw new InvalidDataException(ex.Message);
-            }
+            Task<StatusMessage<Author>> retAuthor = _authorManagementInstance.Create(author);
+
+            if (!retAuthor.Result.Ok) { return RedirectToAction(nameof(Error), new { message = retAuthor.Result.Message }); }            
 
             return RedirectToAction(nameof(Index));
         }
@@ -74,12 +71,12 @@ namespace CheckLibrary.Controllers
         {
             if (id == null) { return RedirectToAction(nameof(Error), new { message = "Id Not Provided" }); }
 
-            Author author = await _authorService.FindByIdAsync(id.Value);
-            if (author == null) { return RedirectToAction(nameof(Error), new { message = "Id Not Found" }); }
-  
-            ViewBag.Options = await _authorService.PopulateCountries();
+            Task<StatusMessage<Author>> retAuthor = _authorManagementInstance.FindAuthor((int)id);
+            if (!retAuthor.Result.Ok) { return RedirectToAction(nameof(Error), new { message = retAuthor.Result.Message }); }
 
-            return View(author);
+            ViewBag.Options = await _authorManagementInstance.PopulateCountries();
+
+            return View(retAuthor.Result.Data);
         }
 
         // POST: AuthorController/Edit/5
@@ -94,49 +91,30 @@ namespace CheckLibrary.Controllers
                 return RedirectToAction(nameof(Index)); 
             }
 
-            if (id != author.Id) { return RedirectToAction(nameof(Index), new { message = "Id mismatch" }); }
+            Task<StatusMessage<Author>> retAuthor = _authorManagementInstance.Edit(id, author);
 
-            try
-            {
-                await _authorService.UpdateAsync(author);
-                return RedirectToAction(nameof(Index));
-            }
-            catch (NotFoundException ex)
-            {
-                return RedirectToAction(nameof(Error), new { message = ex.Message });
-            }
-            catch (DBConcurrencyException exdb)
-            {
-                return RedirectToAction(nameof(Error), new { message = exdb.Message });
-            }
+            if (!retAuthor.Result.Ok) { return RedirectToAction(nameof(Error), new { message = retAuthor.Result.Message }); }
+
+            TempData["message"] = retAuthor.Result.Message;
+            return RedirectToAction(nameof(Index));
         }
 
         // GET: AuthorController/Delete/5
         public async Task<ActionResult> Delete(int id)
         {
-            try
+            if (!ModelState.IsValid)
             {
-                if (id <= 0) { return RedirectToAction(nameof(Error), new { message = "Id Not Provided" }); }
-
-                Author author = await _authorService.FindByIdAsync(id);
-                if (author == null) { return RedirectToAction(nameof(Error), new { message = "Id Not Found" }); }
-
-                await _authorService.DeleteAsync(id);
-
-                TempData["message"] = "Deleted sucessfull";
+                var errorsModelState = ModelState.First(x => x.Value?.Errors.Count > 0);
+                TempData["error_message"] = errorsModelState.Value?.Errors.FirstOrDefault(error => error.ErrorMessage != String.Empty).ErrorMessage;
 
                 return RedirectToAction(nameof(Index));
             }
-            catch (NotFoundException ex)
-            {
-                return RedirectToAction(nameof(Error), new { message = ex.Message });
-            }
-            catch (DBConcurrencyException dbcexp)
-            {
-                return RedirectToAction(nameof(Error), new { message = dbcexp.Message});
-            }
 
+            Task<StatusMessage<Author>> retAuthor = _authorManagementInstance.Delete(id);
+            if (!retAuthor.Result.Ok) { return RedirectToAction(nameof(Error), new { message = retAuthor.Result.Message }); }
 
+            TempData["message"] = retAuthor.Result.Message;
+            return RedirectToAction(nameof(Index));
         }
 
         private IActionResult Error(string message)
