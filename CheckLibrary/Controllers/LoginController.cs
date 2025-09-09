@@ -1,7 +1,7 @@
 ﻿using CheckLibrary.Data;
 using CheckLibrary.Models;
 using CheckLibrary.Services;
-using CheckLibrary.Teste;
+using CheckLibrary.Application;
 using Microsoft.AspNetCore.Mvc;
 
 namespace CheckLibrary.Controllers

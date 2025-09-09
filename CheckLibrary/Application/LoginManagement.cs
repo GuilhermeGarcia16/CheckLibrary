@@ -2,7 +2,7 @@
 using CheckLibrary.Models;
 using CheckLibrary.Services;
 
-namespace CheckLibrary.Teste
+namespace CheckLibrary.Application
 {
     public class LoginManagement
     {
