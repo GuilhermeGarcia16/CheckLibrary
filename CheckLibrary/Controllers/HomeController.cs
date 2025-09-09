@@ -42,7 +42,7 @@ public class HomeController : Controller
                 Category = categoryList
             };
 
-            ViewBag.Busca = wordSearch;
+            ViewBag.Search = wordSearch;
             return View(search);
         }
 

@@ -1,6 +1,6 @@
 ﻿@model CheckLibrary.Models.SearchFullViewModel
 @{
-    ViewBag.Title = String.Format("Resultado de busca:{0}", ViewBag.Busca);
+    ViewBag.Title = String.Format("Result:{0}", ViewBag.Search);
 }
 
 <h1>@ViewBag.Title</h1>
@@ -10,8 +10,8 @@
     <table class="table">
         <thead>
             <tr>
-                <th scope="col">Resultado</th>
-                <th scope="col">Tipo</th>
+                <th scope="col">Result</th>
+                <th scope="col">Type</th>
             </tr>
         </thead>
         <tbody>
@@ -41,5 +41,5 @@
 }
 else
 {
-    <div> Não há dados para mostrar</div>
+    <div> No data </div>
 }
