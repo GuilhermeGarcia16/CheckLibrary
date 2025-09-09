@@ -1,34 +1,37 @@
-﻿using CheckLibrary.Models;
+﻿using CheckLibrary.Data;
+using CheckLibrary.Models;
 using CheckLibrary.Services;
-using CheckLibrary.Services.Exceptions;
+using CheckLibrary.Application;
 using Microsoft.AspNetCore.Mvc;
-using System.Data;
 using System.Diagnostics;
 
 namespace CheckLibrary.Controllers
 {
     public class CategoryController : Controller
     {
-        private readonly CategoryService _categoryService;
+        #region Properties
+        private static CategoryManagement _categoryManagementInstance;
+        public static CategoryManagement CategoryManagementInstance { get { return _categoryManagementInstance; } }
         public CategoryController(CategoryService categoryService)
         {
-            _categoryService = categoryService;
+            _categoryManagementInstance = new(categoryService);
         }
+        #endregion Properties
         public async Task<IActionResult> Index()
         {
-            List<Category> categoryList = await _categoryService.FindAllAsync();
-            return View(categoryList);
+            Task<StatusMessage<List<Category>>> categoryList = _categoryManagementInstance.ListAllCategory();
+            
+            return View(categoryList.Result.Data);
         }
 
         // GET: CategoryController/Details/5
         public async Task<IActionResult> Details(int id)
         {
-            if (id <= 0) { return RedirectToAction(nameof(Error), new { message = "Id Not Provided" }); }
-            Category category = await _categoryService.FindByIdAsync(id);
+            Task<StatusMessage<Category>> retCategory = _categoryManagementInstance.FindCategory(id);
 
-            if (category == null) { return RedirectToAction(nameof(Error), new { message = "Id Not Found" }); }
+            if(!retCategory.Result.Ok) { return RedirectToAction(nameof(Error), new { message = retCategory.Result.Message }); }
 
-            return View(category);
+            return View(retCategory.Result.Data);
         }
 
         // GET: CategoryController/Create
@@ -42,9 +45,7 @@ namespace CheckLibrary.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(Category category)
         {
-            try
-            {
-                if (!ModelState.IsValid) 
+            if (!ModelState.IsValid) 
                 {
                     var errorsModelState = ModelState.First(x => x.Value?.Errors.Count > 0);
                     TempData["error_message"] = errorsModelState.Value?.Errors.FirstOrDefault(error => error.ErrorMessage != String.Empty).ErrorMessage;
@@ -52,12 +53,9 @@ namespace CheckLibrary.Controllers
                     return RedirectToAction(nameof(Index));                
                 }
 
-                await _categoryService.InsertAsync(category);
-            }
-            catch (Exception ex)
-            {
-                throw new InvalidDataException(ex.Message);
-            }
+            Task<StatusMessage<Category>> retCategory = _categoryManagementInstance.Create(category);
+            
+            if (!retCategory.Result.Ok) { return RedirectToAction(nameof(Error), new { message = retCategory.Result.Message }); }
 
             return RedirectToAction(nameof(Index));
         }
@@ -67,10 +65,10 @@ namespace CheckLibrary.Controllers
         {
             if (id == null) { return RedirectToAction(nameof(Error), new { message = "Id Not Provided" }); }
 
-            Category category = await _categoryService.FindByIdAsync(id.Value);
-            if (category == null) { return RedirectToAction(nameof(Error), new { message = "Id Not Found" }); }
+            Task<StatusMessage<Category>> retCategory = _categoryManagementInstance.FindCategory((int)id);
+            if (!retCategory.Result.Ok) { return RedirectToAction(nameof(Error), new { message = retCategory.Result.Message }); }
 
-            return View(category);
+            return View(retCategory.Result.Data);
         }
 
         // POST: CategoryController/Edit/5
@@ -84,50 +82,30 @@ namespace CheckLibrary.Controllers
 
                 return RedirectToAction(nameof(Index));
             }
+            Task<StatusMessage<Category>> retCategory = _categoryManagementInstance.Edit(id, category);
 
-            if (id != category.Id) { return RedirectToAction(nameof(Index), new { message = "Id mismatch" }); }
-
-            try
-            {
-                await _categoryService.UpdateAsync(category);
-                return RedirectToAction(nameof(Index));
-            }
-            catch (NotFoundException ex)
-            {
-                return RedirectToAction(nameof(Error), new { message = ex.Message });
-            }
-            catch (DBConcurrencyException exdb)
-            {
-                return RedirectToAction(nameof(Error), new { message = exdb.Message });
-            }
+            if (!retCategory.Result.Ok) { return RedirectToAction(nameof(Error), new { message = retCategory.Result.Message }); }
+            
+            TempData["message"] = retCategory.Result.Message;
+            return RedirectToAction(nameof(Index));
         }
 
         // GET: CategoryController/Delete/5
         public async Task<ActionResult> Delete(int id)
         {
-            try
+            if (!ModelState.IsValid)
             {
-                if (id <= 0) { return RedirectToAction(nameof(Error), new { message = "Id Not Provided" }); }
-
-                Category category = await _categoryService.FindByIdAsync(id);
-                if (category == null) { return RedirectToAction(nameof(Error), new { message = "Id Not Found" }); }
-
-                await _categoryService.DeleteAsync(id);
-
-                TempData["message"] = "Deleted sucessfull";
+                var errorsModelState = ModelState.First(x => x.Value?.Errors.Count > 0);
+                TempData["error_message"] = errorsModelState.Value?.Errors.FirstOrDefault(error => error.ErrorMessage != String.Empty).ErrorMessage;
 
                 return RedirectToAction(nameof(Index));
             }
-            catch (NotFoundException ex)
-            {
-                return RedirectToAction(nameof(Error), new { message = ex.Message });
-            }
-            catch (DBConcurrencyException dbcexp)
-            {
-                return RedirectToAction(nameof(Error), new { message = dbcexp.Message });
-            }
 
+            Task<StatusMessage<Category>> retCategory = _categoryManagementInstance.Delete(id);
+            if (!retCategory.Result.Ok) { return RedirectToAction(nameof(Error), new { message = retCategory.Result.Message }); }
 
+            TempData["message"] = retCategory.Result.Message;
+            return RedirectToAction(nameof(Index));
         }
 
         private IActionResult Error(string message)
