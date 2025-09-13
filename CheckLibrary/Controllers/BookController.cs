@@ -1,51 +1,54 @@
 ﻿using CheckLibrary.Models;
-using CheckLibrary.Services.Exceptions;
 using CheckLibrary.Services;
 using Microsoft.AspNetCore.Mvc;
-using System.Data;
 using System.Diagnostics;
-using Microsoft.AspNetCore.Mvc.Rendering;
+using CheckLibrary.Data;
+using CheckLibrary.Application;
 
 namespace CheckLibrary.Controllers
 {
     public class BookController : Controller
     {
-        private readonly BookService _bookService;
-        private readonly CategoryService _categoryService;
-        private readonly AuthorService _authorService;
+        #region Properties      
+        private static BookManagement _bookManagementInstance;
+        private static CategoryManagement _categoryManagementInstance;
+        private static AuthorManagement _authorManagementInstance;
 
+        public static BookManagement BookManagementInstance { get { return _bookManagementInstance; } }
+        public static CategoryManagement CategoryManagementInstance { get { return _categoryManagementInstance; } }
+        public static AuthorManagement AuthorManagementInstance { get { return _authorManagementInstance; } }
 
+        #endregion Properties
         public BookController(BookService bookService, CategoryService categoryService, AuthorService authorService)
         {
-            _bookService = bookService;
-            _categoryService = categoryService;
-            _authorService = authorService;
+            _bookManagementInstance = new(bookService, categoryService, authorService);
         }
         public async Task<IActionResult> Index()
         {
-            List<Book> bookList = await _bookService.FindAllAsync();
-            return View(bookList);
+            Task<StatusMessage<List<Book>>> bookList = _bookManagementInstance.ListAllBook();
+
+            return View(bookList.Result.Data);
         }
 
         // GET: BookController/Details/5
         public async Task<IActionResult> Details(int id)
         {
             if (id <= 0) { return RedirectToAction(nameof(Error), new { message = "Id Not Provided" }); }
-            Book book = await _bookService.FindByIdAsync(id);
+            Task<StatusMessage<Book>> retBook = _bookManagementInstance.FindBook(id);
 
-            if (book == null) { return RedirectToAction(nameof(Error), new { message = "Id Not Found" }); }
+            if (!retBook.Result.Ok) { return RedirectToAction(nameof(Error), new { message = retBook.Result.Message }); }
 
-            ViewBag.OptCategories = await PopulateCategory();
-            ViewBag.OptAuthors = await PopulateAuthor();
+            ViewBag.OptCategories = await _bookManagementInstance.PopulateCategory();
+            ViewBag.OptAuthors = await _bookManagementInstance.PopulateAuthor();
 
-            return View(book);
+            return View(retBook.Result.Data);
         }
 
         // GET: BookController/Create
         public async Task<IActionResult> Create()
         {
-            ViewBag.OptCategories = await PopulateCategory();
-            ViewBag.OptAuthors = await PopulateAuthor();
+            ViewBag.OptCategories = await _bookManagementInstance.PopulateCategory();
+            ViewBag.OptAuthors = await _bookManagementInstance.PopulateAuthor();
 
             return View();
         }
@@ -55,22 +58,17 @@ namespace CheckLibrary.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(Book book)
         {
-            try
-            {
-                if (!ModelState.IsValid)
-                {
-                    var errorsModelState = ModelState.First(x => x.Value?.Errors.Count > 0);
-                    TempData["error_message"] = errorsModelState.Value?.Errors.FirstOrDefault(error => error.ErrorMessage != String.Empty).ErrorMessage;
+           if (!ModelState.IsValid)
+           {
+                var errorsModelState = ModelState.First(x => x.Value?.Errors.Count > 0);
+                TempData["error_message"] = errorsModelState.Value?.Errors.FirstOrDefault(error => error.ErrorMessage != String.Empty).ErrorMessage;
 
-                    return RedirectToAction(nameof(Index));
-                }
+                return RedirectToAction(nameof(Index));
+           }
 
-                await _bookService.InsertAsync(book);
-            }
-            catch (Exception ex)
-            {
-                throw new InvalidDataException(ex.Message);
-            }
+            Task<StatusMessage<Book>> retBook = _bookManagementInstance.Create(book);
+
+            if (!retBook.Result.Ok) { return RedirectToAction(nameof(Error), new { message = retBook.Result.Message }); }
 
             return RedirectToAction(nameof(Index));
         }
@@ -80,108 +78,47 @@ namespace CheckLibrary.Controllers
         {
             if (id == null) { return RedirectToAction(nameof(Error), new { message = "Id Not Provided" }); }
 
-            Book book = await _bookService.FindByIdAsync(id.Value);
-            if (book == null) { return RedirectToAction(nameof(Error), new { message = "Id Not Found" }); }
+            Task<StatusMessage<Book>> retBook = _bookManagementInstance.FindBook((int)id);
+            if (!retBook.Result.Ok) { return RedirectToAction(nameof(Error), new { message = retBook.Result.Message }); }
 
-            ViewBag.OptCategories = await PopulateCategory();
-            ViewBag.OptAuthors = await PopulateAuthor();
+            ViewBag.OptCategories = await _bookManagementInstance.PopulateCategory();
+            ViewBag.OptAuthors = await _bookManagementInstance.PopulateAuthor();
 
-            return View(book);
+            return View(retBook.Result.Data);
         }
 
         // POST: BookController/Edit/5
         [HttpPost]
         public async Task<ActionResult> Edit(int id, Book book)
         {
-            try
-            {
-                if (!ModelState.IsValid)
-                {
-                    var errorsModelState = ModelState.First(x => x.Value?.Errors.Count > 0);
-                    TempData["error_message"] = errorsModelState.Value?.Errors.FirstOrDefault(error => error.ErrorMessage != String.Empty).ErrorMessage;
+           if (!ModelState.IsValid)
+           {
+                var errorsModelState = ModelState.First(x => x.Value?.Errors.Count > 0);
+                TempData["error_message"] = errorsModelState.Value?.Errors.FirstOrDefault(error => error.ErrorMessage != String.Empty).ErrorMessage;
 
-                    return RedirectToAction(nameof(Index));
-                }
-
-                if (id != book.Id) { return RedirectToAction(nameof(Index), new { message = "Id mismatch" }); }
-                
-                await _bookService.UpdateAsync(book);
-                
                 return RedirectToAction(nameof(Index));
-            }
-            catch (NotFoundException ex)
-            {
-                return RedirectToAction(nameof(Error), new { message = ex.Message });
-            }
-            catch (DBConcurrencyException exdb)
-            {
-                return RedirectToAction(nameof(Error), new { message = exdb.Message });
-            }
+           }
+
+           if (id != book.Id) { return RedirectToAction(nameof(Index), new { message = "Id mismatch" }); }
+
+           Task<StatusMessage<Book>> retBook = _bookManagementInstance.Edit(id, book);
+
+           if (!retBook.Result.Ok) { return RedirectToAction(nameof(Error), new { message = retBook.Result.Message }); }
+
+           TempData["message"] = retBook.Result.Message;
+           return RedirectToAction(nameof(Index));
         }
 
         // GET: BookController/Delete/5
         public async Task<ActionResult> Delete(int id)
         {
-            try
-            {
-                if (id <= 0) { return RedirectToAction(nameof(Error), new { message = "Id Not Provided" }); }
+            if (id <= 0) { return RedirectToAction(nameof(Error), new { message = "Id Not Provided" }); }
+            Task<StatusMessage<Book>> retBook = _bookManagementInstance.Delete(id);
+            if (!retBook.Result.Ok) { return RedirectToAction(nameof(Error), new { message = retBook.Result.Message }); }
 
-                Book book = await _bookService.FindByIdAsync(id);
-                if (book == null) { return RedirectToAction(nameof(Error), new { message = "Id Not Found" }); }
-
-                await _bookService.DeleteAsync(id);
-
-                TempData["message"] = "Deleted sucessfull";
-
-                return RedirectToAction(nameof(Index));
-            }
-            catch (NotFoundException ex)
-            {
-                return RedirectToAction(nameof(Error), new { message = ex.Message });
-            }
-            catch (DBConcurrencyException dbcexp)
-            {
-                return RedirectToAction(nameof(Error), new { message = dbcexp.Message });
-            }
-
-
+            TempData["message"] = retBook.Result.Message;
+            return RedirectToAction(nameof(Index));
         }
-        private async Task<List<SelectListItem>> PopulateCategory()
-        {
-            List<Category> categories = await _categoryService.FindAllAsync();
-
-            List<SelectListItem> category = new List<SelectListItem>();
-
-            foreach (var cat in categories)
-            {
-                category.Add(new SelectListItem
-                {
-                    Value = cat.Id.ToString(),
-                    Text = cat.Description.ToUpper()
-                });
-            }
-
-            return category;
-        }
-
-        private async Task<List<SelectListItem>> PopulateAuthor()
-        {
-            List<Author> authors = await _authorService.FindAllAsync();
-
-            List<SelectListItem> author = new List<SelectListItem>();
-
-            foreach (var aut in authors)
-            {
-                author.Add(new SelectListItem
-                {
-                    Value = aut.Id.ToString(),
-                    Text = aut.Name.ToUpper()
-                });
-            }
-
-            return author;
-        }
-
         private IActionResult Error(string message)
         {
             var viewModel = new ErrorViewModel { Message = message, RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier };
