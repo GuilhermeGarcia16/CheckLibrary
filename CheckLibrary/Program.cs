@@ -10,6 +10,8 @@ builder.Services.AddScoped<AuthorService>();
 builder.Services.AddScoped<CategoryService>();
 builder.Services.AddScoped<BookService>();
 builder.Services.AddScoped<AccountService>();
+builder.Services.AddScoped<LibraryService>();
+
 //Service Cache
 builder.Services.AddDistributedMemoryCache();
 //Service Session

@@ -1,0 +1,68 @@
+﻿@model IEnumerable<CheckLibrary.Models.Library>
+@{
+    ViewBag.Title = "My Library";
+}
+
+<h1>@ViewBag.Title</h1>
+
+<section id="sec-libraries">
+    @if (Model.Count() > 0)
+    {
+        <div class="container text-center">
+            <div class="row justify-content-md-center">
+                @foreach(var item in Model)
+                {
+                    <div class="col p-0">
+                        <div class="card" style="width: 10rem;">
+                            <div class="justify-content-md-center">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="99" height="99" fill="currentColor" class="bi bi-book-half" viewBox="0 0 16 16">
+                                    <path d="M8.5 2.687c.654-.689 1.782-.886 3.112-.752 1.234.124 2.503.523 3.388.893v9.923c-.918-.35-2.107-.692-3.287-.81-1.094-.111-2.278-.039-3.213.492zM8 1.783C7.015.936 5.587.81 4.287.94c-1.514.153-3.042.672-3.994 1.105A.5.5 0 0 0 0 2.5v11a.5.5 0 0 0 .707.455c.882-.4 2.303-.881 3.68-1.02 1.409-.142 2.59.087 3.223.877a.5.5 0 0 0 .78 0c.633-.79 1.814-1.019 3.222-.877 1.378.139 2.8.62 3.681 1.02A.5.5 0 0 0 16 13.5v-11a.5.5 0 0 0-.293-.455c-.952-.433-2.48-.952-3.994-1.105C10.413.809 8.985.936 8 1.783"></path>
+                                </svg>
+                            </div>
+                            <div class="card-body">
+                                <p>
+                                    @Html.ActionLink(
+                                        item.Title, 
+                                        "FindLibrary",
+                                        "Library", new {id=item.Id});
+                                    </p>
+                            </div>
+                        </div>
+                    </div>           
+                }
+        </div>
+    </div>
+    }
+    <button id="btn-new-list" type="button" class="btn btn-dark">New Library</button>
+</section>
+<section id="sec-create-new-library">
+    <section id="sec-name-library">
+        <div class="form-floating mb-3">
+            <input type="text" class="form-control" id="inputName">
+            <label for="inputName">Library Name</label>
+        </div>
+        <button id="nextName" type="button" class="btn btn-dark" disabled="true">Next</button>
+        <button id="backName" type="button" class="btn btn-dark">Back</button>
+    </section>
+    <section id="sec-search-book">
+        <form asp-action="Search">
+            <div class="form-group">
+                <label for="book">Search Book</label>
+                <input type="text" class="form-control" name="wordSearch" />
+            </div>
+        </form>
+        <ul class="list-group list-group-horizontal" id="list-result-search"></ul>
+        <button id="backSearchBook" type="button" class="btn btn-dark">Back</button>
+    </section>
+    <section id="sec-list-group-add">
+        <h2>Selected book:</h2>
+        <ul class="list-group list-group-horizontal" id="list-books-temp"></ul>
+        <button class="btn btn-dark" id="btn-save-library">Save</button>
+    </section>
+</section>
+@section Scripts{
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+    <script type="text/javascript" src="~/js/library.js"></script>
+}

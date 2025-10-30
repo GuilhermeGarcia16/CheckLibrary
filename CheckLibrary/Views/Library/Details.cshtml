@@ -1,0 +1,14 @@
+﻿@model IEnumerable<CheckLibrary.Models.Library>
+@{
+    ViewBag.Title = "My Library";
+}
+<h1>@ViewBag.Title</h1>
+
+<section>
+</section>
+  
+@section Scripts{
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

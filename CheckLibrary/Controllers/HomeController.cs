@@ -2,6 +2,7 @@ using System.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
 using CheckLibrary.Models;
 using CheckLibrary.Services;
+using NuGet.Protocol;
 
 namespace CheckLibrary.Controllers;
 
@@ -48,6 +49,17 @@ public class HomeController : Controller
 
         TempData["message"] = "Preencha o campo de pesquisa.";
         return RedirectToAction(nameof(Index));
+    }
+
+    public IActionResult SearchToLibrary(String wordSearch)
+    {
+        if (wordSearch is not null)
+        {
+            //Busca apenas o título do livro
+            List<Book> bookList = _bookService.FindByWord(wordSearch);
+            return new JsonResult(bookList.ToJson());
+        }
+        return new JsonResult(new { });
     }
 
     public IActionResult Error()
